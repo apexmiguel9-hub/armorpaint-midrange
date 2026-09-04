@@ -204,10 +204,9 @@ void config_init() {
 		g_config->texture_filter   = true;
 		g_config->rp_supersample   = 1.0;
 #ifdef IRON_ANDROID
-		if (sys_display_width() >= 3200 && sys_display_height() >= 2136) {
-			g_config->window_scale   = 2.5;
-			g_config->rp_supersample = 0.5;
-		}
+		// Weak mobile GPUs (IMG PowerVR BXM, low-end Mali/Adreno) are
+		// fill-bound at full-res render targets - default to half-res.
+		g_config->rp_supersample = 0.5;
 #endif
 		g_config->recent_projects = any_array_create_from_raw((void *[]){}, 0);
 		g_config->bookmarks       = any_array_create_from_raw((void *[]){}, 0);
@@ -241,11 +240,7 @@ void config_init() {
 		g_config->wrap_mouse         = false;
 		g_config->camera_pivot       = CAMERA_PIVOT_CENTER;
 		g_config->camera_controls    = CAMERA_CONTROLS_ORBIT;
-		#if defined(IRON_ANDROID) || defined(IRON_IOS)
-		g_config->layer_res          = TEXTURE_RES_RES1024;
-#else
 		g_config->layer_res          = TEXTURE_RES_RES2048;
-#endif
 #if defined(IRON_ANDROID) || defined(IRON_IOS)
 		g_config->touch_ui      = true;
 		g_config->splash_screen = true;
