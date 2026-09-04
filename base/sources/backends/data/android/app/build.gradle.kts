@@ -22,13 +22,36 @@ android {
     sourceSets.getByName("main") {
         java.setSrcDirs(listOf({javasources}))
     }
+    signingConfigs {
+        create("test") {
+            storeFile = file("armorpaint-test.keystore")
+            storePassword = "armorpaint"
+            keyAlias = "armorpaint"
+            keyPassword = "armorpaint"
+        }
+    }
     buildTypes {
         release {
-            isMinifyEnabled = true
-            proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
+            isMinifyEnabled = false
+            signingConfig = signingConfigs.getByName("test")
+            externalNativeBuild {
+                cmake {
+                    // Generated CMakeLists only injects project defines for
+                    // Debug/RelWithDebInfo -> must NOT use plain Release.
+                    arguments.addAll(listOf("-DCMAKE_BUILD_TYPE=RelWithDebInfo"))
+                }
+            }
         }
         debug {
             isMinifyEnabled = false
+            signingConfig = signingConfigs.getByName("test")
+            externalNativeBuild {
+                cmake {
+                    // Optimized native code even in the debug APK
+                    // (plain Debug type compiles -O0 -> very slow on device).
+                    arguments.addAll(listOf("-DCMAKE_BUILD_TYPE=RelWithDebInfo"))
+                }
+            }
         }
     }
     compileOptions {
