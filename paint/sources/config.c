@@ -180,16 +180,28 @@ void config_init() {
 			g_config->window_scale = 3.0;
 		}
 #endif
-		g_config->window_vsync     = true;
+#ifdef IRON_ANDROID
+		g_config->window_vsync = false; // MAILBOX - FIFO adds 1-3 frames of input latency
+#else
+		g_config->window_vsync = true;
+#endif
 		g_config->window_frequency = sys_display_frequency();
 		g_config->rp_bloom         = 0.0;
+#ifdef IRON_ANDROID
+		// Skip cheap fullscreen passes on mobile GPUs: IMG PowerVR (BXM) and
+		// low-end Mali/Adreno are fill/bandwidth-bound with full-res passe.
+		g_config->rp_vignette      = 0.0;
+		g_config->rp_grain         = 0.0;
+		g_config->rp_ssao          = 0.0;
+#else
 		g_config->rp_vignette      = 0.2;
 		g_config->rp_grain         = 0.09;
+		g_config->rp_ssao          = 1.0;
+#endif
 		g_config->rp_contrast      = 1.0;
 		g_config->rp_gamma         = 1.0;
 		g_config->lut_path         = "";
 		g_config->texture_filter   = true;
-		g_config->rp_ssao          = 1.0;
 		g_config->rp_supersample   = 1.0;
 #ifdef IRON_ANDROID
 		if (sys_display_width() >= 3200 && sys_display_height() >= 2136) {
@@ -229,7 +241,11 @@ void config_init() {
 		g_config->wrap_mouse         = false;
 		g_config->camera_pivot       = CAMERA_PIVOT_CENTER;
 		g_config->camera_controls    = CAMERA_CONTROLS_ORBIT;
+		#if defined(IRON_ANDROID) || defined(IRON_IOS)
+		g_config->layer_res          = TEXTURE_RES_RES1024;
+#else
 		g_config->layer_res          = TEXTURE_RES_RES2048;
+#endif
 #if defined(IRON_ANDROID) || defined(IRON_IOS)
 		g_config->touch_ui      = true;
 		g_config->splash_screen = true;
@@ -262,7 +278,11 @@ void config_init() {
 		g_config->experimental        = false;
 		g_config->neural_res          = 512;
 		g_config->console_model       = CONSOLE_MODEL_QWEN;
+		#if defined(IRON_ANDROID) || defined(IRON_IOS)
+		g_config->render_mode         = RENDER_MODE_FORWARD;
+#else
 		g_config->render_mode         = RENDER_MODE_DEFERRED;
+#endif
 		g_config->workspace           = WORKSPACE_PAINT_3D;
 		g_config->workflow            = WORKFLOW_PBR;
 	}

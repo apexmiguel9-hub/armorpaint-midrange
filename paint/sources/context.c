@@ -16,6 +16,7 @@ void context_init() {
 	g_context->show_envmap                  = false;
 	g_context->show_envmap_blur             = false;
 	g_context->show_envmap_spheres          = false;
+	g_context->show_statistics              = false;
 	g_context->capturing_screenshot         = false;
 	g_context->capture_background           = false;
 	g_context->envmap_angle                 = 0.0;

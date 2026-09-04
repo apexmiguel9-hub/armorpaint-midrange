@@ -15,6 +15,10 @@ i32            base_last_window_width  = 0;
 i32            base_last_window_height = 0;
 bool           base_start_arm_found    = false;
 i32            _base_material_count;
+static i32     base_stats_frames = 0;
+static i32     base_stats_fps    = 0;
+static f32     base_stats_ms     = 0.0f;
+static f32     base_stats_t      = 0.0f;
 
 void base_on_shutdown() {
 #if defined(IRON_ANDROID) || defined(IRON_IOS)
@@ -453,6 +457,35 @@ void base_update(void *_) {
 
 	bool using_menu = ui_menu_show && mouse_y > ui_header_h;
 	base_ui_enabled = !ui_box_show && !using_menu && g_ui->combo_selected_handle == NULL;
+
+	// Statistics overlay
+	if (g_context->show_statistics) {
+		base_stats_frames++;
+		f32 now = sys_time();
+		if (base_stats_t == 0.0f) {
+			base_stats_t = now;
+		}
+		if (now - base_stats_t >= 0.5f) {
+			base_stats_fps = (i32)(base_stats_frames / (now - base_stats_t) + 0.5f);
+			base_stats_ms  = (now - base_stats_t) * 1000.0f / base_stats_frames;
+			base_stats_t   = now;
+			base_stats_frames = 0;
+		}
+		i32 tris = 0;
+		mesh_object_t *mo = context_main_object();
+		if (mo != NULL && mo->data != NULL && mo->data->index_array != NULL) {
+			tris = mo->data->index_array->length / 3;
+		}
+		draw_begin(NULL, false, 0);
+		draw_set_font(g_font, math_floor(14 * UI_SCALE()));
+		draw_set_color(0xddffffff);
+		f32 ox = 12 * UI_SCALE();
+		f32 oy = ui_header_h + 14 * UI_SCALE();
+		draw_string(string_tmp("FPS: %d (%.1f ms)", base_stats_fps, base_stats_ms), ox, oy);
+		draw_string(string_tmp("tris: %d", tris), ox, oy + 20 * UI_SCALE());
+		draw_set_color(0xffffffff);
+		draw_end();
+	}
 
 	if (ui_box_show) {
 		ui_box_render();

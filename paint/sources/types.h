@@ -424,6 +424,7 @@ typedef struct context {
 	f32             particle_random;
 	f32             particle_spawn_distance;
 	struct any_map *keymap;
+	bool            show_statistics;
 } context_t;
 
 typedef struct node_shader {
