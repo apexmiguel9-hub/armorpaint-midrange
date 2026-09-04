@@ -1976,6 +1976,10 @@ char *gpu_device_name() {
 	return device_name;
 }
 
+bool gpu_vendor_is_powervr() {
+	return strstr(device_name, "PowerVR") != NULL || strstr(device_name, "BXM") != NULL || strstr(device_name, "IMG") != NULL;
+}
+
 bool gpu_bc7_supported(int width, int height, gpu_texture_format_t format) {
 	static bool bc7_supported = false;
 #ifdef WITH_BC7
